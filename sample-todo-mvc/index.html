@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>VortexUx • TodoMVC</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="node_modules/todomvc-common/base.css">
+		<link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
+    </head>
+    <body vx-app vx-states="todosStatus:all, active, completed:true" vx-states="areTodos:todos.length">
+        <section class="todoapp">
+			<header class="header">
+				<h1>todos</h1>
+				<input id="todo.title" class="new-todo" autofocus autocomplete="off" placeholder="What needs to be done?" vx-push="todos: { completed: false, editing: false }">
+			</header>
+			<section class="main" vx-show="areTodos">
+				<input class="toggle-all" type="checkbox">
+				<ul class="todo-list" vx-list="todos:todoItem" vx-filter="">
+					<li class="todo" vx-class="completed:todoItem.completed, editing:todoItem.editing">
+						<div class="view" vx-class="" vx-hide="todoItem.editing">
+							<input id="todoItem.completed" class="toggle" type="checkbox">
+							<label id="todoItem.title" vx-dblclick-toggle="todoItem.editing"></label>
+							<button class="destroy" vx-remove="todoItem"></button>
+						</div>
+						<input id="todoItem.editing" class="edit" type="text" vx-show="todoItem.editing">
+					</li>
+				</ul>
+			</section>
+			<footer class="footer" vx-show="areTodos">
+				<span class="todo-count">
+					<strong id="todos.filtered.count"></strong> <span vx-pluralize="todos.filtered.count:item:items"></span> left
+				</span>
+				<ul class="filters">
+					<li><a vx-state-toggle="all">All</a></li>
+					<li><a vx-state-toggle="active">Active</a></li>
+					<li><a vx-state-toggle="completed">Completed</a></li>
+				</ul>
+				<button class="clear-completed" vx-remove-list="todos:completed">
+					Clear completed
+				</button>
+			</footer>
+		</section>
+		<footer class="info">
+			<p>Double-click to edit a todo</p>
+			<p>Written by <a href="http://evanyou.me">Thomas Brian</a></p>
+			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+		</footer>
+		<script src="vortex.js"></script>
+    </body>
+</html>
