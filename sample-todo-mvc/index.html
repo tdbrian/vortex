@@ -13,12 +13,12 @@
 	<vx-preloader>Loading App...</vx-preloader>
 
 	<template>
-		<vx-states vx-group="todosStatus" vx-exclusive>
-			<vx-state>all</vx-state>
+		<vx-states vx-group="todosStatus">
+			<vx-state vx-default>all</vx-state>
 			<vx-state>active</vx-state>
 			<vx-state>completed</vx-state>
 		</vx-states>
-		<vx-states vx-group="areTodos" vx-boolean vx-on="todos.length"></vx-states>
+		<vx-states vx-group="areTodos" vx-toggle-on="todos.length"></vx-states>
 		<section class="todoapp">
 			<header class="header">
 				<h1>todos</h1>

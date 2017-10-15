@@ -2,55 +2,64 @@
 // copyright 2017 Thomas Brian
 
 (function () {
-    
+
     // Options 
     var verbose = true;
-    
-    // App State
-    var states = {};
+
+    // App store
+    var store = {
+        states: {}
+    };
 
     // Element names
     const prefix = 'vx';
     const prefixDivider = '-';
-    const preloaderElementName = prefix + prefixDivider + 'preloader';
-    const statesElementName = prefix + prefixDivider + 'states';
-    const groupElementName = prefix + prefixDivider + 'group';
 
-    /**
-     * The initial page render on startup.
-     */
+    // The initial page render on startup.
     function initRender() {
         info('Rendering app');
         var templateContents = document.querySelector('template').content;
         removePreLoaders();
         setStates(templateContents);
         info('states: ')
-        info(states);
+        info(store.states);
         document.querySelector('body').appendChild(templateContents);
     }
 
-    /**
-     * All vx preLoaders are removed from the dome.
-     */
+    // All vx preLoaders are removed from the dom.
+    const preloaderElName = prefix + prefixDivider + 'preloader';
     function removePreLoaders() {
-        document.querySelectorAll(preloaderElementName).forEach(function(element) { element.remove() }, this);
+        document.querySelectorAll(preloaderElName).forEach(function (el) { el.remove() }, this);
     }
 
-    /**
-     * States are retrieved from the template and extracted out to the page states.
-     */
+    // States are retrieved from the template and extracted out to the page states.
+    const statesElName = prefix + prefixDivider + 'states';
+    const groupElName = prefix + prefixDivider + 'group';
+    const stateElName = prefix + prefixDivider + 'state';
+    const stateElDefault = prefix + prefixDivider + 'default';
     function setStates(templateContents) {
-        templateContents.querySelectorAll(statesElementName).forEach(function(stateElement) {
-            var groupName = stateElement.getAttribute(groupElementName).toString();
+        
+        // Get all state groups
+        templateContents.querySelectorAll(statesElName).forEach(function (stateEl) {
+            var groupName = stateEl.getAttribute(groupElName).toString();
             if (groupName == null) groupName = 'default';
-            states[groupName] = {};
-            stateElement.remove() 
+            
+            // Gets sub-states of state group
+            var subStates = [].slice.call(stateEl.getElementsByTagName(stateElName));
+            let innerStates = subStates.map(function (innerStateEl) {
+                var isDefault = innerStateEl.attributes.getNamedItem(stateElDefault) !== null;
+                var stateName = innerStateEl.innerText.toLowerCase().trim();
+                return {
+                    stateName,
+                    active: isDefault
+                };
+            });
+            store.states[groupName] = innerStates;
+            stateEl.remove()
         }, this);
     }
 
-    /**
-     * Logs out info messages to the console when verbosity is on.
-     */
+    // Logs out info messages to the console when verbosity is on.
     function info(message) {
         if (verbose) console.info(message);
     }
