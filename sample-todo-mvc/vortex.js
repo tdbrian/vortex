@@ -54,6 +54,10 @@
                     active: isDefault
                 };
             });
+
+            // No sub-states defaults to boolean state
+            if(subStates.length === 0) { innerStates = false }
+
             store.states[groupName] = innerStates;
             stateEl.remove()
         }, this);
