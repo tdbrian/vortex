@@ -22,11 +22,15 @@
         removePreLoaders();
         setStates(templateContents);
         setStore(templateContents);
+        runStack.forEach(function(fn) {
+            fn(templateContents);
+        });
         document.querySelector('body').appendChild(templateContents);
     }
 
     var runStack = [
-        hideShowEl
+        showEl,
+        hideEl
     ];
 
     function updateState(state) {
@@ -82,34 +86,58 @@
     function setStore(templateContents) {
         info('setting store');
         templateContents.querySelectorAll("[" + elInputAttr + "]").forEach(function (inputEl) {
-            info(inputEl)
             var inputData = inputEl.getAttribute(elInputAttr);
             setWith(store, inputData, null);
-            info(inputData)
         });
         info(store);
     }
 
-    function hideShowEl() {
-
+    // Hides or shows elements based on store
+    const showElAttr = prefix + prefixDivider + 'show';
+    function showEl(templateContents) {
+        info('running show / hide')
+        templateContents.querySelectorAll("[" + showElAttr + "]").forEach(function (showEl) { 
+            var showStateOn = showEl.getAttribute(showElAttr);
+            var state = objectGet(store, showStateOn);
+            if (state == false) { showEl.style.display = "none" }
+            else { showEl.style.display = "" };
+        });
     }
+
+    const hideElAttr = prefix + prefixDivider + 'hide';
+    function hideEl(templateContents) {
+        info('running show / hide')
+        templateContents.querySelectorAll("[" + hideElAttr + "]").forEach(function (showEl) { 
+            info(showEl)
+            var showStateOn = showEl.getAttribute(hideElAttr);
+            var state = objectGet(store, showStateOn);
+            if (state == false) { showEl.style.display = "" }
+            else { showEl.style.display = "none" };
+        });
+    } 
 
     // Logs out info messages to the console when verbosity is on.
     function info(message) {
         if (verbose) console.info(message);
     }
 
-    // Assigns value to object based on properties
+    // Assigns value to object based on properties as string
     function setWith(obj, prop, value) {
-        if (typeof prop === "string") {
-            prop = prop.split(".");
-        }
+        if (typeof prop === "string") { prop = prop.split("."); }
         if (prop.length > 1) {
             var e = prop.shift();
             setWith(obj[e] = Object.prototype.toString.call(obj[e]) === "[object Object]" ? obj[e] : {}, prop, value);
         } else {
             obj[prop[0]] = value;
         }
+    }
+
+   // Gets value from object based on nested properties as string
+    function objectGet(obj, prop) {
+        if(typeof obj === 'undefined') { return false; }
+        var _index = prop.indexOf('.')
+        if(_index > -1) { return objectGet(obj[prop.substring(0, _index)], prop.substr(_index + 1)); }
+        return obj[prop];
     }
 
     info('Starting Vortex :)');
