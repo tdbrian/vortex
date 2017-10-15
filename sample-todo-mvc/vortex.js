@@ -17,9 +17,8 @@
 
     // The initial page render on startup.
     function initRender() {
-        info('Rendering app');
+        info('rendering app');
         var templateContents = document.querySelector('template').content;
-        removePreLoaders();
         setStates(templateContents);
         setStore(templateContents);
         runStack.forEach(function(fn) {
@@ -30,11 +29,12 @@
 
     var runStack = [
         showEl,
-        hideEl
+        hideEl,
+        removePreLoaders
     ];
 
     function updateState(state) {
-        info('Running state update loop');
+        info('running state update loop');
         runStack.forEach(function(fn) {
             fn();
         });
@@ -43,6 +43,7 @@
     // All vx preLoaders are removed from the dom.
     const preloaderElName = prefix + prefixDivider + 'preloader';
     function removePreLoaders() {
+        info('removing pre-loaders')
         document.querySelectorAll(preloaderElName).forEach(function (el) { el.remove() }, this);
     }
 
@@ -83,19 +84,29 @@
     // Creates initial store based on attributes and elements   
     const elBindAttr = prefix + prefixDivider + 'bind';
     const elInputAttr = prefix + prefixDivider + 'input';
+    const elListAttr = prefix + prefixDivider + 'list';
     function setStore(templateContents) {
         info('setting store');
         templateContents.querySelectorAll("[" + elInputAttr + "]").forEach(function (inputEl) {
             var inputData = inputEl.getAttribute(elInputAttr);
             setWith(store, inputData, null);
         });
+        templateContents.querySelectorAll("[" + elListAttr + "]").forEach(function (listEl) {
+            var listData = listEl.getAttribute(elListAttr);
+            var listParts = listData.split(":");
+            var listPath = listParts[0];
+            var listFilteredPath = listParts[1];
+            info(listParts)
+            setWith(store, listPath, []);
+            setWith(store, listFilteredPath, []);
+        });
         info(store);
     }
 
-    // Hides or shows elements based on store
+    // Hides or shows elements based on store value
     const showElAttr = prefix + prefixDivider + 'show';
     function showEl(templateContents) {
-        info('running show / hide')
+        info('running show')
         templateContents.querySelectorAll("[" + showElAttr + "]").forEach(function (showEl) { 
             var showStateOn = showEl.getAttribute(showElAttr);
             var state = objectGet(store, showStateOn);
@@ -104,11 +115,11 @@
         });
     }
 
+    // Hides or shows elements based on store value
     const hideElAttr = prefix + prefixDivider + 'hide';
     function hideEl(templateContents) {
-        info('running show / hide')
+        info('running hide')
         templateContents.querySelectorAll("[" + hideElAttr + "]").forEach(function (showEl) { 
-            info(showEl)
             var showStateOn = showEl.getAttribute(hideElAttr);
             var state = objectGet(store, showStateOn);
             if (state == false) { showEl.style.display = "" }
