@@ -130,7 +130,10 @@
         templateContents.querySelectorAll("form[" + actionElAttr + "]").forEach(function (actionEl) { 
             info('handling forms');
             var actionState = actionEl.getAttribute(actionElAttr);
-            info(actionEl)
+            var formActionParts = actionState.split(":");
+            var formActionType = formActionParts[0];
+            var formActionStorePath = formActionParts[1];
+            var formActionState = formActionParts[2];
             actionEl.onsubmit = function(evt) {
                 evt.preventDefault();
                 var inputs = [].slice.call(actionEl.getElementsByTagName("input"));
@@ -141,6 +144,16 @@
                     if (typeof inputValue == "string" &&  inputValue.toLowerCase() == "false") { inputValue = false; }
                     setWith(store, inputAttribute, inputValue);
                 });
+                switch (formActionType) {
+                    case "push":
+                        var pushList = objectGet(store, formActionStorePath);                                        
+                        var pushState = objectGet(store, formActionState);
+                        debugger;
+                        pushList.push(pushState);
+                        break;
+                    default:
+                        break;
+                }      
                 info(store);
                 actionEl.reset();
                 return false;
