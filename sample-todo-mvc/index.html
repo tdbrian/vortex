@@ -15,15 +15,15 @@
 			<vx-state>active</vx-state>
 			<vx-state>completed</vx-state>
 		</vx-states>
-		<vx-states vx-group="areTodos" vx-toggle-on="todos.length"></vx-states>
+		<vx-states vx-group="areTodos" vx-toggle-on="todosgth"></vx-states>
 		<section class="todoapp">
 			<header class="header">
 				<h1>todos</h1>
 				<form vx-action="push:todos">
 					<input class="new-todo" autofocus autocomplete="off" placeholder="What needs to be done?" vx-input="newTodo.title">
-					<input type="checkbox" vx-input="newTodo.editing" value="false" hidden="true">
-					<input type="checkbox" vx-input="newTodo.completed" value="false" hidden="true">
-					<input type="checkbox" vx-input="newTodo.active" value="true" hidden="true">
+					<input type="hidden" vx-input="newTodo.editing" value="false">
+					<input type="hidden" vx-input="newTodo.completed" value="false">
+					<input type="hidden" vx-input="newTodo.active" value="true">
 				</form>
 			</header>
 			<section class="main" vx-show="states.areTodos">
@@ -41,8 +41,8 @@
 			</section>
 			<footer class="footer" vx-show="states.areTodos">
 				<span class="todo-count">
-					<strong vx-bind="filteredTodos.count"></strong>
-					<span vx-pluralize="filteredTodos.count:item:items"></span> left
+					<strong vx-bind="filteredTodos.length"></strong>
+					<span vx-pluralize="filteredTodos.length:item:items"></span> left
 				</span>
 				<ul class="filters">
 					<li><a vx-state-toggle="todosStatus:all">All</a></li>

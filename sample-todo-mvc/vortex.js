@@ -15,6 +15,14 @@
     const prefix = 'vx';
     const prefixDivider = '-';
 
+    // The stack of element functions to be run
+    var runStack = [
+        handleForms,
+        showEl,
+        hideEl,
+        removePreLoaders
+    ];
+
     // The initial page render on startup.
     function initRender() {
         info('rendering app');
@@ -27,12 +35,7 @@
         document.querySelector('body').appendChild(templateContents);
     }
 
-    var runStack = [
-        showEl,
-        hideEl,
-        removePreLoaders
-    ];
-
+    // Update state tree
     function updateState(state) {
         info('running state update loop');
         runStack.forEach(function(fn) {
@@ -89,6 +92,12 @@
         info('setting store');
         templateContents.querySelectorAll("[" + elInputAttr + "]").forEach(function (inputEl) {
             var inputData = inputEl.getAttribute(elInputAttr);
+            // inputEl.onkeyup = function(evt) {
+            //     if (evt.key == "Enter") {
+            //         info(inputEl.textContent)
+            //         setWith(store, inputData, inputEl.textContent);
+            //     }
+            // };
             setWith(store, inputData, null);
         });
         templateContents.querySelectorAll("[" + elListAttr + "]").forEach(function (listEl) {
@@ -106,12 +115,37 @@
     // Hides or shows elements based on store value
     const showElAttr = prefix + prefixDivider + 'show';
     function showEl(templateContents) {
-        info('running show')
+        info('running show');
         templateContents.querySelectorAll("[" + showElAttr + "]").forEach(function (showEl) { 
             var showStateOn = showEl.getAttribute(showElAttr);
             var state = objectGet(store, showStateOn);
             if (state == false) { showEl.style.display = "none" }
             else { showEl.style.display = "" };
+        });
+    }
+
+    // Handle forms
+    const actionElAttr = prefix + prefixDivider + 'action';
+    function handleForms(templateContents) {
+        templateContents.querySelectorAll("form[" + actionElAttr + "]").forEach(function (actionEl) { 
+            info('handling forms');
+            var actionState = actionEl.getAttribute(actionElAttr);
+            info(actionEl)
+            actionEl.onsubmit = function(evt) {
+                evt.preventDefault();
+                var inputs = [].slice.call(actionEl.getElementsByTagName("input"));
+                inputs.forEach(function(inputEl) {
+                    var inputAttribute = inputEl.getAttribute(elInputAttr);
+                    var inputValue = inputEl.value;
+                    if (typeof inputValue == "string" && inputValue.toLowerCase() == "true") { inputValue = true; }
+                    if (typeof inputValue == "string" &&  inputValue.toLowerCase() == "false") { inputValue = false; }
+                    setWith(store, inputAttribute, inputValue);
+                });
+                info(store);
+                actionEl.reset();
+                return false;
+            };
+            info(actionEl)
         });
     }
 
