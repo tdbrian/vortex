@@ -21,9 +21,19 @@
         var templateContents = document.querySelector('template').content;
         removePreLoaders();
         setStates(templateContents);
-        info('states: ')
-        info(store.states);
+        setStore(templateContents);
         document.querySelector('body').appendChild(templateContents);
+    }
+
+    var runStack = [
+        hideShowEl
+    ];
+
+    function updateState(state) {
+        info('Running state update loop');
+        runStack.forEach(function(fn) {
+            fn();
+        });
     }
 
     // All vx preLoaders are removed from the dom.
@@ -59,13 +69,47 @@
             if(subStates.length === 0) { innerStates = false }
 
             store.states[groupName] = innerStates;
-            stateEl.remove()
+            stateEl.remove();
         }, this);
+
+        info('states: ');
+        info(store.states);
+    }
+    
+    // Creates initial store based on attributes and elements   
+    const elBindAttr = prefix + prefixDivider + 'bind';
+    const elInputAttr = prefix + prefixDivider + 'input';
+    function setStore(templateContents) {
+        info('setting store');
+        templateContents.querySelectorAll("[" + elInputAttr + "]").forEach(function (inputEl) {
+            info(inputEl)
+            var inputData = inputEl.getAttribute(elInputAttr);
+            setWith(store, inputData, null);
+            info(inputData)
+        });
+        info(store);
+    }
+
+    function hideShowEl() {
+
     }
 
     // Logs out info messages to the console when verbosity is on.
     function info(message) {
         if (verbose) console.info(message);
+    }
+
+    // Assigns value to object based on properties
+    function setWith(obj, prop, value) {
+        if (typeof prop === "string") {
+            prop = prop.split(".");
+        }
+        if (prop.length > 1) {
+            var e = prop.shift();
+            setWith(obj[e] = Object.prototype.toString.call(obj[e]) === "[object Object]" ? obj[e] : {}, prop, value);
+        } else {
+            obj[prop[0]] = value;
+        }
     }
 
     info('Starting Vortex :)');
