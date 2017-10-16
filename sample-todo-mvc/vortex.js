@@ -35,6 +35,8 @@
         runStack.forEach(function(fn) {
             fn(templateContents).setup();
         });
+        info('listeners')
+        info(treeListeners);
         removePreLoaders();
         document.querySelector('body').appendChild(templateContents);
     }
@@ -131,10 +133,12 @@
             setup: function() {
                 info('running show');
                 templateContents.querySelectorAll("[" + showElAttr + "]").forEach(function (showEl) { 
-                    var showStateOn = showEl.getAttribute(showElAttr);
-                    var state = objectGet(store, showStateOn);
+                    // Set dom
+                    var showStatePath = showEl.getAttribute(showElAttr);
+                    var state = objectGet(store, showStatePath);
                     if (state == false) { showEl.style.display = "none" }
                     else { showEl.style.display = "" };
+                    addListener(showStatePath, showEl);
                 });
             },
             update: function(state, value) {
@@ -143,10 +147,28 @@
         }
     }
 
+    // Hides or shows elements based on store value
+    const hideElAttr = prefix + prefixDivider + 'hide';
+    function hideEl(templateContents) {
+        return {
+            setup: function() {
+                info('running hide')
+                templateContents.querySelectorAll("[" + hideElAttr + "]").forEach(function (showEl) { 
+                    var showStateOn = showEl.getAttribute(hideElAttr);
+                    var state = objectGet(store, showStateOn);
+                    if (state == false) { showEl.style.display = "" }
+                    else { showEl.style.display = "none" };
+                });
+            },
+            update: function(state, value) {
+                info("forms updating");
+            }
+        }
+    }
+
     // Handle forms
     const actionElAttr = prefix + prefixDivider + 'action';
     function handleForms(templateContents) {
-        
         return {
             setup: function() {
                 templateContents.querySelectorAll("form[" + actionElAttr + "]").forEach(function (actionEl) { 
@@ -188,25 +210,15 @@
         }
     }
 
-    // Hides or shows elements based on store value
-    const hideElAttr = prefix + prefixDivider + 'hide';
-    function hideEl(templateContents) {
-        
-        return {
-            setup: function() {
-                info('running hide')
-                templateContents.querySelectorAll("[" + hideElAttr + "]").forEach(function (showEl) { 
-                    var showStateOn = showEl.getAttribute(hideElAttr);
-                    var state = objectGet(store, showStateOn);
-                    if (state == false) { showEl.style.display = "" }
-                    else { showEl.style.display = "none" };
-                });
-            },
-            update: function(state, value) {
-                info("forms updating");
-            }
+    // Add listener to the listeners tree
+    function addListener(statePath, el) {
+        var listeners = objectGet(treeListeners, statePath);
+        if (listeners == false) {
+            setWith(treeListeners, statePath, []);
         }
-    } 
+        listeners = objectGet(treeListeners, statePath);
+        listeners.push(el);
+    }
 
     // Logs out info messages to the console when verbosity is on.
     function info(message) {
