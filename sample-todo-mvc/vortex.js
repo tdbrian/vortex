@@ -11,6 +11,9 @@
         states: {}
     };
 
+    // App event listeners
+    var treeListeners = {};
+
     // Element names
     const prefix = 'vx';
     const prefixDivider = '-';
@@ -19,8 +22,7 @@
     var runStack = [
         handleForms,
         showEl,
-        hideEl,
-        removePreLoaders
+        hideEl
     ];
 
     // The initial page render on startup.
@@ -29,9 +31,11 @@
         var templateContents = document.querySelector('template').content;
         setStates(templateContents);
         setStore(templateContents);
+        setListenersTree(templateContents);
         runStack.forEach(function(fn) {
-            fn(templateContents);
+            fn(templateContents).setup();
         });
+        removePreLoaders();
         document.querySelector('body').appendChild(templateContents);
     }
 
@@ -111,67 +115,97 @@
         });
         info(store);
     }
+    
+    // Creates a tree of event listeners
+    function setListenersTree(templateContents) {
+       info('setting up listeners tree');
+        templateContents.querySelectorAll("[" + showElAttr + "]").forEach(function (showEl) { 
+            
+        });
+    }
 
     // Hides or shows elements based on store value
     const showElAttr = prefix + prefixDivider + 'show';
     function showEl(templateContents) {
-        info('running show');
-        templateContents.querySelectorAll("[" + showElAttr + "]").forEach(function (showEl) { 
-            var showStateOn = showEl.getAttribute(showElAttr);
-            var state = objectGet(store, showStateOn);
-            if (state == false) { showEl.style.display = "none" }
-            else { showEl.style.display = "" };
-        });
+        return {
+            setup: function() {
+                info('running show');
+                templateContents.querySelectorAll("[" + showElAttr + "]").forEach(function (showEl) { 
+                    var showStateOn = showEl.getAttribute(showElAttr);
+                    var state = objectGet(store, showStateOn);
+                    if (state == false) { showEl.style.display = "none" }
+                    else { showEl.style.display = "" };
+                });
+            },
+            update: function(state, value) {
+
+            }
+        }
     }
 
     // Handle forms
     const actionElAttr = prefix + prefixDivider + 'action';
     function handleForms(templateContents) {
-        templateContents.querySelectorAll("form[" + actionElAttr + "]").forEach(function (actionEl) { 
-            info('handling forms');
-            var actionState = actionEl.getAttribute(actionElAttr);
-            var formActionParts = actionState.split(":");
-            var formActionType = formActionParts[0];
-            var formActionStorePath = formActionParts[1];
-            var formActionState = formActionParts[2];
-            actionEl.onsubmit = function(evt) {
-                evt.preventDefault();
-                var inputs = [].slice.call(actionEl.getElementsByTagName("input"));
-                inputs.forEach(function(inputEl) {
-                    var inputAttribute = inputEl.getAttribute(elInputAttr);
-                    var inputValue = inputEl.value;
-                    if (typeof inputValue == "string" && inputValue.toLowerCase() == "true") { inputValue = true; }
-                    if (typeof inputValue == "string" &&  inputValue.toLowerCase() == "false") { inputValue = false; }
-                    setWith(store, inputAttribute, inputValue);
+        
+        return {
+            setup: function() {
+                templateContents.querySelectorAll("form[" + actionElAttr + "]").forEach(function (actionEl) { 
+                    info('handling forms');
+                    var actionState = actionEl.getAttribute(actionElAttr);
+                    var formActionParts = actionState.split(":");
+                    var formActionType = formActionParts[0];
+                    var formActionState = formActionParts[1];
+                    var formActionStorePath = formActionParts[2];
+                    actionEl.onsubmit = function(evt) {
+                        evt.preventDefault();
+                        var inputs = [].slice.call(actionEl.getElementsByTagName("input"));
+                        inputs.forEach(function(inputEl) {
+                            var inputAttribute = inputEl.getAttribute(elInputAttr);
+                            var inputValue = inputEl.value;
+                            if (typeof inputValue == "string" && inputValue.toLowerCase() == "true") { inputValue = true; }
+                            if (typeof inputValue == "string" &&  inputValue.toLowerCase() == "false") { inputValue = false; }
+                            setWith(store, inputAttribute, inputValue);
+                        });
+                        switch (formActionType) {
+                            case "push":
+                                var pushList = objectGet(store, formActionStorePath);                                        
+                                var pushState = objectGet(store, formActionState);
+                                pushList.push(pushState);
+                                break;
+                            default:
+                                break;
+                        }      
+                        info(store);
+                        actionEl.reset();
+                        return false;
+                    };
+                    info(actionEl)
                 });
-                switch (formActionType) {
-                    case "push":
-                        var pushList = objectGet(store, formActionStorePath);                                        
-                        var pushState = objectGet(store, formActionState);
-                        debugger;
-                        pushList.push(pushState);
-                        break;
-                    default:
-                        break;
-                }      
-                info(store);
-                actionEl.reset();
-                return false;
-            };
-            info(actionEl)
-        });
+            },
+            update: function(state, value) {
+                info("forms updating");
+            }
+        }
     }
 
     // Hides or shows elements based on store value
     const hideElAttr = prefix + prefixDivider + 'hide';
     function hideEl(templateContents) {
-        info('running hide')
-        templateContents.querySelectorAll("[" + hideElAttr + "]").forEach(function (showEl) { 
-            var showStateOn = showEl.getAttribute(hideElAttr);
-            var state = objectGet(store, showStateOn);
-            if (state == false) { showEl.style.display = "" }
-            else { showEl.style.display = "none" };
-        });
+        
+        return {
+            setup: function() {
+                info('running hide')
+                templateContents.querySelectorAll("[" + hideElAttr + "]").forEach(function (showEl) { 
+                    var showStateOn = showEl.getAttribute(hideElAttr);
+                    var state = objectGet(store, showStateOn);
+                    if (state == false) { showEl.style.display = "" }
+                    else { showEl.style.display = "none" };
+                });
+            },
+            update: function(state, value) {
+                info("forms updating");
+            }
+        }
     } 
 
     // Logs out info messages to the console when verbosity is on.
