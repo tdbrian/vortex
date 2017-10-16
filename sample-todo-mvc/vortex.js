@@ -42,10 +42,10 @@
     }
 
     // Update state tree
-    function updateState(state) {
+    function updateState(path, state) {
         info('running state update loop');
         runStack.forEach(function(fn) {
-            fn();
+            fn.update(path, state);
         });
     }
 
@@ -142,6 +142,7 @@
                 });
             },
             update: function(state, value) {
+                
                 info("hide updating");
             }
         }
