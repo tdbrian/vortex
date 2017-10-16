@@ -132,17 +132,17 @@
         return {
             setup: function() {
                 info('running show');
-                templateContents.querySelectorAll("[" + showElAttr + "]").forEach(function (showEl) { 
+                templateContents.querySelectorAll("[" + showElAttr + "]").forEach(function (el) { 
                     // Set dom
-                    var showStatePath = showEl.getAttribute(showElAttr);
+                    var showStatePath = el.getAttribute(showElAttr);
                     var state = objectGet(store, showStatePath);
-                    if (state == false) { showEl.style.display = "none" }
-                    else { showEl.style.display = "" };
-                    addListener(showStatePath, showEl);
+                    if (state == false) { el.style.display = "none" }
+                    else { el.style.display = "" };
+                    addListener(showStatePath, el);
                 });
             },
             update: function(state, value) {
-
+                info("hide updating");
             }
         }
     }
@@ -153,15 +153,16 @@
         return {
             setup: function() {
                 info('running hide')
-                templateContents.querySelectorAll("[" + hideElAttr + "]").forEach(function (showEl) { 
-                    var showStateOn = showEl.getAttribute(hideElAttr);
-                    var state = objectGet(store, showStateOn);
-                    if (state == false) { showEl.style.display = "" }
-                    else { showEl.style.display = "none" };
+                templateContents.querySelectorAll("[" + hideElAttr + "]").forEach(function (el) { 
+                    var hideStatePath = el.getAttribute(hideElAttr);
+                    var state = objectGet(store, hideStatePath);
+                    if (state == false) { el.style.display = "" }
+                    else { el.style.display = "none" };
+                    addListener(hideStatePath, el);
                 });
             },
             update: function(state, value) {
-                info("forms updating");
+                info("hide updating");
             }
         }
     }

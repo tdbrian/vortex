@@ -30,7 +30,7 @@
 				<input class="toggle-all" type="checkbox">
 				<ul class="todo-list" vx-list="todos:filteredTodos" vx-filter="todosStatus | all:* | active:!completed | completed:completed">
 					<li class="todo" vx-list-class="completed:todoItem.completed, editing:todos:editing">
-						<div class="view" vx-class="" vx-hide="todos:editing">
+						<div class="view" vx-class="" vx-list-hide="todos:editing">
 							<input class="toggle" type="checkbox" vx-list-input="todos:completed">
 							<label vx-list-dblclick-toggle="todos:editing" vx-list-bind="todos:title"></label>
 							<button class="destroy" vx-list-remove="todos"></button>
