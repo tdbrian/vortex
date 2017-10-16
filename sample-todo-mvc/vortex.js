@@ -194,6 +194,7 @@
                                 var pushList = objectGet(store, formActionStorePath);                                        
                                 var pushState = objectGet(store, formActionState);
                                 pushList.push(pushState);
+                                updateState(formActionStorePath, pushList);
                                 break;
                             default:
                                 break;
